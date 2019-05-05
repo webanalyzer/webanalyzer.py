@@ -1,0 +1,17 @@
+{
+    "name": "Adobe Experience Manager",
+    "website": "http://www.adobe.com/au/marketing-cloud/enterprise-content-management.html",
+    "matches": [
+        {
+            "regexp": "<div class=\"[^\"]*parbase"
+        },
+        {
+            "regexp": "<div[^>]+data-component-path=\"[^\"+]jcr:"
+        },
+        {
+            "search": "script",
+            "regexp": "/etc/designs/"
+        }
+    ],
+    "implies": "Java"
+}

@@ -1,0 +1,25 @@
+[run]
+branch = True
+source = webanalyzer
+
+[report]
+ignore_errors = True
+omit =
+    webanalyzer/cli.py
+    examples/*
+    tests/*
+    setup.py
+
+exclude_lines =
+    # Have to re-enable the standard pragma
+    pragma: no cover
+
+    # Don't complain about missing debug-only code:
+    def __repr__
+    def __str__
+    raise
+    warnings.warn
+
+    # Don't complain if non-runnable code isn't run:
+    if 0:
+    if __name__ == .__main__.:

@@ -1,0 +1,26 @@
+language: python
+python: "3.6"
+branches:
+  only:
+  - master
+
+before_install:
+  - openssl aes-256-cbc -K $encrypted_7b16cb35cfc7_key -iv $encrypted_7b16cb35cfc7_iv
+    -in id_rsa.enc -out ~/.ssh/id_rsa -d
+  - chmod 600 ~/.ssh/id_rsa
+  - eval $(ssh-agent)
+  - ssh-add ~/.ssh/id_rsa
+  - cp ssh_config ~/.ssh/config
+  - git config --global user.name "fate0"
+  - git config --global user.email "git@fatezero.org"
+
+install:
+  - wget https://raw.githubusercontent.com/AliasIO/Wappalyzer/master/src/apps.json
+  - git clone -b master --depth=2 https://github.com/urbanadventurer/WhatWeb
+  - python tools/wappalyzer.py
+  - ruby tools/whatweb.rb
+
+script:
+  - git add wappalyzer/plugins
+  - git commit -m "auto update plugins"
+  - git push -u origin master

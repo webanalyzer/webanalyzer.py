@@ -1,0 +1,26 @@
+{
+    "name": "Wix",
+    "website": "http://wix.com",
+    "matches": [
+        {
+            "search": "cookies[Domain]",
+            "regexp": "\\.wix\\.com"
+        },
+        {
+            "search": "headers[x-wix-renderer-server]",
+            "regexp": ".*"
+        },
+        {
+            "search": "headers[x-wix-request-id]",
+            "regexp": ".*"
+        },
+        {
+            "search": "headers[x-wix-server-artifact-id]",
+            "regexp": ".*"
+        },
+        {
+            "search": "script",
+            "regexp": "static\\.wixstatic\\.com"
+        }
+    ]
+}
