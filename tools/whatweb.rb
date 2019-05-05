@@ -2,10 +2,11 @@
 
 require 'json'
 require "fileutils"
+require "pathname"
 
 
-$src_plugin_dir = File.dirname(__FILE__) + "/../WhatWeb/plugins/"
-$dst_plugin_dir = File.dirname(__FILE__) + "/../webanalyzer/plugins/whatweb/"
+$src_plugin_dir = File.expand_path("../WhatWeb/plugins/", Pathname.new(File.dirname(__FILE__)).realpath)
+$dst_plugin_dir = File.expand_path("../webanalyzer/plugins/whatweb/", Pathname.new(File.dirname(__FILE__)).realpath)
 
 
 $plugin_name = nil
@@ -105,7 +106,7 @@ Dir.foreach($src_plugin_dir) do |file|
     $plugin_dorks = nil
 
     begin
-      require_relative $src_plugin_dir + file
+      require_relative $src_plugin_dir + '/' + file
 
       if $plugin_matches == nil
         next
@@ -120,7 +121,7 @@ Dir.foreach($src_plugin_dir) do |file|
           :matches => $plugin_matches,
       }
 
-      File.open($dst_plugin_dir + file[0..-4] + ".json", "w") do |f|
+      File.open($dst_plugin_dir + '/' + file[0..-4] + ".json", "w") do |f|
         f.puts(JSON.pretty_generate(plugin, {indent: "    "}))
       end
     rescue Exception => e
