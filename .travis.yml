@@ -21,6 +21,8 @@ install:
   - ruby tools/whatweb.rb
 
 script:
+  - git remote rm origin
+  - git remote add origin git@github.com:fate0/webanalyzer.git
   - git add webanalyzer/plugins
   - git commit -m "auto update plugins"
   - git push -u origin master
