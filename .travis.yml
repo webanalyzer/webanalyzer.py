@@ -21,6 +21,6 @@ install:
   - ruby tools/whatweb.rb
 
 script:
-  - git add wappalyzer/plugins
+  - git add webanalyzer/plugins
   - git commit -m "auto update plugins"
   - git push -u origin master
