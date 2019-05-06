@@ -121,8 +121,13 @@ Dir.foreach($src_plugin_dir) do |file|
           :matches => $plugin_matches,
       }
 
-      File.open($dst_plugin_dir + '/' + file[0..-4] + ".json", "w") do |f|
-        f.puts(JSON.pretty_generate(plugin, {indent: "    "}))
+      filename = $dst_plugin_dir + '/' + file[0..-4] + ".json"
+      File.open(filename, "w") do |f|
+        begin
+          f.puts(JSON.pretty_generate(plugin, {indent: "    "}))
+        rescue Exception => e
+          File.delete(filename)
+        end
       end
     rescue Exception => e
       puts e
