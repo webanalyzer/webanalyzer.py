@@ -97,7 +97,8 @@ print(r)
 [
     {
         "name": "rule name"
-        "search": "all"
+        "search": "all",
+        "text": "wordpress"
     }
 ]
 ```
@@ -174,7 +175,18 @@ Wappalyzer 更多的作为一个浏览器插件使用。
 
 * 如何同步 WhatWeb、Wappalyzer 的规则？
 
-可以看下 [.travis.yml](.travis.yml)，通过 travis-ci 达到每天自动同步规则，每周自动同步至 pypi 。
+可以看下 [.travis.yml](https://github.com/fate0/webanalyzer/blob/build/.travis.yml)，通过 travis-ci 达到每天自动同步规则，每周自动同步至 pypi 。
+
+* 为什么只支持 Python3.6 以及以上的 Python 版本？
+
+因为有些正则规则使用了 `(?-flag:...)` 这样的写法，然而在
+[https://docs.python.org/3/whatsnew/3.6.html#re](https://docs.python.org/3/whatsnew/3.6.html#re)
+才开始支持。
+
+* License 为什么是 GPL-2.0 ？
+
+因为 WhatWeb 就是 GPL-2.0，虽然我没有抄代码，但是规则是通过 WhatWeb 转换过来的，虽然不确定会不会传染，
+为了保险起见就设置成和 WhatWeb 一样的 License 。
 
 
 ## 引用
