@@ -45,22 +45,21 @@ class WebAnalyzer(object):
                 with open(os.path.join(plugin_type_dir, i)) as fd:
                     try:
                         data = json.load(fd)
+                        new_plugins.add(data['name'])
+                        for match in data['matches']:
+                            for key in match:
+                                if key == 'regexp':
+                                    match[key] = re.compile(match[key], re.I | re.DOTALL)
+
+                            if 'certainty' not in match:
+                                match['certainty'] = 100
+    
+                        data['origin'] = plugin_type
+                        key = '%s_%s' % (plugin_type, data['name'])
+                        self.rules[key] = data
+                        new_plugins.add(key)
                     except Exception as e:
-                        continue
-
-                    new_plugins.add(data['name'])
-                    for match in data['matches']:
-                        for key in match:
-                            if key == 'regexp':
-                                match[key] = re.compile(match[key], re.I | re.DOTALL)
-
-                        if 'certainty' not in match:
-                            match['certainty'] = 100
-
-                    data['origin'] = plugin_type
-                    key = '%s_%s' % (plugin_type, data['name'])
-                    self.rules[key] = data
-                    new_plugins.add(key)
+                        logger.error('parse %s failed, error: %s' % (i, e))
 
         # disable rules
         disabled_rules = set(self.rules.keys()) - new_plugins
