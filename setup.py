@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import re
+import ast
 from os import path
-from datetime import date
 from setuptools import setup, find_packages
 
 here = path.abspath(path.dirname(__file__))
@@ -11,7 +12,12 @@ with open(path.join(here, 'README.md'), 'rb') as readme_file:
     readme = readme_file.read().decode('utf-8')
 
 
-version = date.today().strftime('%Y.%m.%d')
+_version_re = re.compile(r'__version__\s+=\s+(.*)')
+
+
+with open('webanalyzer/__init__.py', 'rb') as f:
+    version = str(ast.literal_eval(_version_re.search(
+        f.read().decode('utf-8')).group(1)))
 
 
 with open(path.join(here, 'requirements.txt'), 'rb') as f:

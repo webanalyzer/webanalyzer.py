@@ -11,6 +11,7 @@ import requests
 import urllib.parse
 from lxml import etree
 from .condition import Condition
+from . import __version__
 
 
 urllib3.disable_warnings()
@@ -27,7 +28,7 @@ class WebAnalyzer(object):
         self.url = None
         self.targets = {}
         self.headers = {
-            'user-agent': 'webanalyzer/2019.05.05'
+            'user-agent': 'webanalyzer/%s' % __version__
         }
         self.cond_parser = Condition()
         self.allow_redirect = True
