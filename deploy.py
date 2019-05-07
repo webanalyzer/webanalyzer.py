@@ -7,7 +7,7 @@ import datetime
 
 
 today = datetime.datetime.today()
-if today.weekday() != 0:
+if today.day != 5:
     print("There is only one god, and His name is Death. And there is only one thing we say to Death.")
     print('not today')
     sys.exit(0)

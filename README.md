@@ -175,7 +175,7 @@ Wappalyzer 更多的作为一个浏览器插件使用。
 
 * 如何同步 WhatWeb、Wappalyzer 的规则？
 
-可以看下 [.travis.yml](https://github.com/fate0/webanalyzer/blob/build/.travis.yml)，通过 travis-ci 达到每天自动同步规则，每周自动同步至 pypi 。
+可以看下 [.travis.yml](https://github.com/fate0/webanalyzer/blob/build/.travis.yml)，通过 travis-ci 达到每天自动同步规则，每月自动同步至 pypi 。
 
 * 为什么只支持 Python3.6 以及以上的 Python 版本？
 
