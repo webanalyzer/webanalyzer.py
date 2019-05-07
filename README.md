@@ -14,10 +14,57 @@ pip install -U webanalyzer
 ### 命令行
 
 ```sh
-webanalyzer -u "http://www.fatezero.org"
+[*] webanalyzer -u "http://blog.fatezero.org"
+[
+    {
+        "name": "OpenSearch",
+        "origin": "whatweb"
+    },
+    {
+        "name": "Script",
+        "origin": "whatweb"
+    },
+    {
+        "name": "PoweredBy",
+        "origin": "whatweb"
+    },
+    {
+        "name": "MetaGenerator",
+        "origin": "whatweb"
+    },
+    {
+        "name": "HTML5",
+        "origin": "whatweb"
+    },
+    {
+        "name": "Fastly",
+        "origin": "wappalyzer"
+    },
+    {
+        "name": "Hexo",
+        "origin": "wappalyzer",
+        "version": "3.8.0"
+    },
+    {
+        "name": "Varnish",
+        "origin": "wappalyzer"
+    },
+    {
+        "name": "GitHub Pages",
+        "origin": "wappalyzer"
+    },
+    {
+        "name": "Ruby on Rails",
+        "origin": "implies"
+    },
+    {
+        "name": "Ruby",
+        "origin": "implies"
+    }
+]
 ```
 
-usage:
+使用方法:
 
 ```sh
 [*] webanalyzer --help
