@@ -1,5 +1,8 @@
 # webanalyzer
 
+[![PyPI](https://img.shields.io/pypi/v/webanalyzer.svg)](https://pypi.python.org/pypi/webanalyzer)
+
+
 ## 安装
 
 ```sh
