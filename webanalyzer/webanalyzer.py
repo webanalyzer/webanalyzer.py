@@ -13,9 +13,7 @@ from lxml import etree
 from .condition import Condition
 from . import __version__
 
-
 urllib3.disable_warnings()
-logger = logging.getLogger(__file__)
 
 
 class WebAnalyzer(object):
@@ -32,7 +30,7 @@ class WebAnalyzer(object):
         }
         self.cond_parser = Condition()
         self.allow_redirect = True
-        self.verbose = 0
+        self.logger = logging.getLogger(__file__)
 
     def load_plugins(self):
         new_plugins = set()
@@ -60,7 +58,7 @@ class WebAnalyzer(object):
                         self.rules[key] = data
                         new_plugins.add(key)
                     except Exception as e:
-                        logger.error('parse %s failed, error: %s' % (i, e))
+                        self.logger.error('parse %s failed, error: %s' % (i, e))
 
         # disable rules
         disabled_rules = set(self.rules.keys()) - new_plugins
@@ -71,7 +69,7 @@ class WebAnalyzer(object):
         try:
             rp = requests.get(url, headers=self.headers, verify=False, allow_redirects=self.allow_redirect)
         except Exception as e:
-            logger.error("request error: %s" % str(e))
+            self.logger.error("request error: %s" % str(e))
             return
 
         script = []
@@ -123,6 +121,7 @@ class WebAnalyzer(object):
             elif aggression:
                 target = self.request(full_url)
             else:
+                self.logger.debug("match has url(%s) field, but aggression is false" % match['url'])
                 return False
 
         # parse search
@@ -229,12 +228,14 @@ class WebAnalyzer(object):
             return result
 
     def start(self, url):
+        self.logger.debug("process %s" % url)
         self.url = url
         results = []
         implies = set()
         excludes = set()
 
         if not self.request(url):
+            self.logger.info("request %s failed" % url)
             return
 
         self.request(urllib.parse.urljoin(url, '/favicon.ico'))

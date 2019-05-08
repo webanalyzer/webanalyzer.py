@@ -22,7 +22,6 @@ TOKEN_TYPE = {
 }
 
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(filename)s:%(lineno)s - %(name)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 

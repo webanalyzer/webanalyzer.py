@@ -4,6 +4,7 @@
 
 import json
 import click
+import logging
 from .webanalyzer import WebAnalyzer
 
 
@@ -15,7 +16,7 @@ from .webanalyzer import WebAnalyzer
 @click.option('-H', '--header', multiple=True, help='Pass custom header LINE to serve')
 @click.option('-r', '--disallow-redirect', is_flag=True, default=False, help='Disallow redirect')
 @click.option('-l', '--list-plugins', is_flag=True, default=False, help='List the plugins')
-@click.option('-v', '--verbose', type=click.INT, default=0, help='Verbose level')
+@click.option('-v', '--verbose', type=click.IntRange(0, 5), default=2, help='Verbose level')
 def main(url, aggression, user_agent, header, disallow_redirect, list_plugins, verbose):
     w = WebAnalyzer()
 
@@ -46,8 +47,8 @@ def main(url, aggression, user_agent, header, disallow_redirect, list_plugins, v
     if disallow_redirect:
         w.allow_redirect = not disallow_redirect
 
-    if verbose:
-        w.verbose = verbose
+    logging.basicConfig(format='%(asctime)s - %(filename)s - %(levelname)s - %(message)s')
+    w.logger.setLevel((5-verbose)*10)
 
     r = w.start(url)
     print(json.dumps(r, indent=4))
