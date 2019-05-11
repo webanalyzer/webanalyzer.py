@@ -40,26 +40,6 @@ Options:
 [*] webanalyzer -u "http://blog.fatezero.org"
 [
     {
-        "name": "OpenSearch",
-        "origin": "whatweb"
-    },
-    {
-        "name": "Script",
-        "origin": "whatweb"
-    },
-    {
-        "name": "PoweredBy",
-        "origin": "whatweb"
-    },
-    {
-        "name": "MetaGenerator",
-        "origin": "whatweb"
-    },
-    {
-        "name": "HTML5",
-        "origin": "whatweb"
-    },
-    {
         "name": "Fastly",
         "origin": "wappalyzer"
     },
@@ -85,14 +65,20 @@ Options:
         "origin": "implies"
     }
 ]
+```
 
+使用名字指定 plugin
+```
 [*] webanalyzer -u "http://blog.fatezero.org" -p hexo
 {
     "name": "Hexo",
     "origin": "test",
     "version": "3.8.0"
 }
+```
 
+使用绝对路径指定某个 plugin
+```
 [*] webanalyzer -u "http://blog.fatezero.org" -p /abs/path/to/hexo.json
 {
     "name": "Hexo",
