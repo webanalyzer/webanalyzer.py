@@ -13,6 +13,29 @@ pip install -U webanalyzer
 
 ### 命令行
 
+
+使用方法:
+
+```sh
+[*] webanalyzer --help
+Usage: webanalyzer [OPTIONS]
+
+Options:
+  -u, --url TEXT                  Target  [required]
+  -a, --aggression INTEGER RANGE  Aggression mode, 1 enable custom plugins
+                                  aggression mode, 2 enable all plugins
+                                  aggression mode
+  -U, --user-agent TEXT           Custom user agent
+  -H, --header TEXT               Pass custom header LINE to serve
+  -r, --disallow-redirect         Disallow redirect
+  -l, --list-plugins              List the plugins
+  -v, --verbose INTEGER RANGE     Verbose level
+  -p, --plugin TEXT               Specify plugin
+  --help                          Show this message and exit.
+```
+
+例子:
+
 ```sh
 [*] webanalyzer -u "http://blog.fatezero.org"
 [
@@ -62,25 +85,20 @@ pip install -U webanalyzer
         "origin": "implies"
     }
 ]
-```
 
-使用方法:
+[*] webanalyzer -u "http://blog.fatezero.org" -p hexo
+{
+    "name": "Hexo",
+    "origin": "test",
+    "version": "3.8.0"
+}
 
-```sh
-[*] webanalyzer --help
-Usage: webanalyzer [OPTIONS]
-
-Options:
-  -u, --url TEXT                  Target  [required]
-  -a, --aggression INTEGER RANGE  Aggression mode, 1 enable custom plugins
-                                  aggression mode, 2 enable all plugins
-                                  aggression mode
-  -U, --user-agent TEXT           Custom user agent
-  -H, --header TEXT               Pass custom header LINE to serve
-  -r, --disallow-redirect         Disallow redirect
-  -l, --list-plugins              List the plugins
-  -v, --verbose INTEGER           Verbose level
-  --help                          Show this message and exit.
+[*] webanalyzer -u "http://blog.fatezero.org" -p /abs/path/to/hexo.json
+{
+    "name": "Hexo",
+    "origin": "test",
+    "version": "3.8.0"
+}
 ```
 
 ### 类库
