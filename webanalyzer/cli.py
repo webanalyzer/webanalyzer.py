@@ -17,7 +17,8 @@ from .webanalyzer import WebAnalyzer
 @click.option('-r', '--disallow-redirect', is_flag=True, default=False, help='Disallow redirect')
 @click.option('-l', '--list-plugins', is_flag=True, default=False, help='List the plugins')
 @click.option('-v', '--verbose', type=click.IntRange(0, 5), default=2, help='Verbose level')
-def main(url, aggression, user_agent, header, disallow_redirect, list_plugins, verbose):
+@click.option('-p', '--plugin', type=click.STRING, help="Specify plugin")
+def main(url, aggression, user_agent, header, disallow_redirect, list_plugins, verbose, plugin):
     w = WebAnalyzer()
 
     if False and list_plugins:
@@ -49,6 +50,11 @@ def main(url, aggression, user_agent, header, disallow_redirect, list_plugins, v
 
     logging.basicConfig(format='%(asctime)s - %(filename)s - %(levelname)s - %(message)s')
     w.logger.setLevel((5-verbose)*10)
+
+    if plugin:
+        r = w.test_plugin(plugin, url)
+        print(json.dumps(r, indent=4))
+        return
 
     r = w.start(url)
     print(json.dumps(r, indent=4))

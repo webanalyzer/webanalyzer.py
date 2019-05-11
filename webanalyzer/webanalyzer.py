@@ -46,9 +46,8 @@ class WebAnalyzer(object):
                         data = json.load(fd)
                         new_plugins.add(data['name'])
                         for match in data['matches']:
-                            for key in match:
-                                if key == 'regexp':
-                                    match[key] = re.compile(match[key], re.I | re.DOTALL)
+                            if 'regexp' in match:
+                                match['regexp'] = re.compile(match['regexp'], re.I | re.DOTALL)
 
                             if 'certainty' not in match:
                                 match['certainty'] = 100
@@ -64,6 +63,40 @@ class WebAnalyzer(object):
         disabled_rules = set(self.rules.keys()) - new_plugins
         for rule in disabled_rules:
             self.rules.pop(rule)
+
+    def test_plugin(self, plugin_path, url):
+        self.url = url
+        self.request(self.url)
+
+        if not os.path.exists(plugin_path):
+            if not plugin_path.endswith('.json'):
+                plugin_path += '.json'
+
+            for plugin_type in os.listdir(self.plugin_dir):
+                if os.path.exists(os.path.join(self.plugin_dir, plugin_type, plugin_path)):
+                    plugin_path = os.path.join(self.plugin_dir, plugin_type, plugin_path)
+                    break
+            else:
+                self.logger.info("no such plugin, return")
+                return
+
+        with open(plugin_path) as fd:
+            rule = json.load(fd)
+
+            if len(rule['matches']) == 0:
+                self.logger.info("matches empty, return")
+                return
+
+            rule['origin'] = 'test'
+
+            for match in rule['matches']:
+                if 'regexp' in match:
+                    match['regexp'] = re.compile(match['regexp'], re.I | re.DOTALL)
+
+                if 'certainty' not in match:
+                    match['certainty'] = 100
+
+            return self.check_rule(rule)
 
     def request(self, url):
         try:
@@ -147,7 +180,7 @@ class WebAnalyzer(object):
 
             match.pop('search')
 
-        version = None
+        version = match.get('version', None)
         for key in list(match.keys()):
             if key == 'status':
                 if match[key] != target[key]:
