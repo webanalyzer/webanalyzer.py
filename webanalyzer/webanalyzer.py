@@ -154,9 +154,8 @@ class WebAnalyzer(object):
                     return False
 
             if key == 'md5':
-                if 'search' not in match:
-                    pass
-                return False
+                if target['md5'] != match['md5']:
+                    return False
 
             if key == 'text':
                 search_contexts = search_context
