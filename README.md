@@ -68,7 +68,7 @@ Options:
 ```
 
 使用名字指定 plugin
-```
+``` sh
 [*] webanalyzer -u "http://blog.fatezero.org" -p hexo
 {
     "name": "Hexo",
@@ -78,7 +78,7 @@ Options:
 ```
 
 使用绝对路径指定某个 plugin
-```
+``` sh
 [*] webanalyzer -u "http://blog.fatezero.org" -p /abs/path/to/hexo.json
 {
     "name": "Hexo",
