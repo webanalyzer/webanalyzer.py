@@ -9,7 +9,7 @@ import hashlib
 import logging
 import requests
 import urllib.parse
-from lxml import etree
+from bs4 import BeautifulSoup
 from .condition import Condition
 from . import __version__
 
@@ -108,19 +108,18 @@ class WebAnalyzer(object):
         script = []
         meta = {}
 
-        p = etree.HTML(rp.text)
+        p = BeautifulSoup(rp.text, "html5lib")
 
-        if p is not None:
-            for data in p.xpath("//script"):
-                script_src = data.get("src")
-                if script_src:
-                    script.append(script_src)
+        for data in p.find_all("script"):
+            script_src = data.get("src")
+            if script_src:
+                script.append(script_src)
 
-            for data in p.xpath("//meta"):
-                meta_name = data.get("name")
-                meta_content = data.get("content")
-                if meta_name or meta_content:
-                    meta[meta_name] = meta_content
+        for data in p.find_all("meta"):
+            meta_name = data.get("name")
+            meta_content = data.get("content")
+            if meta_name or meta_content:
+                meta[meta_name] = meta_content
 
         raw_headers = '\n'.join('{}: {}'.format(k, v) for k, v in rp.headers.items())
         self.targets[url] = {
