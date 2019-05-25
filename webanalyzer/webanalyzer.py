@@ -117,8 +117,8 @@ class WebAnalyzer(object):
 
         for data in p.find_all("meta"):
             meta_name = data.get("name")
-            meta_content = data.get("content")
-            if meta_name or meta_content:
+            meta_content = data.get("content", "")
+            if meta_name:
                 meta[meta_name] = meta_content
 
         raw_headers = '\n'.join('{}: {}'.format(k, v) for k, v in rp.headers.items())
