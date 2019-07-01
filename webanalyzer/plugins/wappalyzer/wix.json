@@ -1,6 +1,6 @@
 {
     "name": "Wix",
-    "website": "http://wix.com",
+    "website": "https://www.wix.com",
     "matches": [
         {
             "search": "cookies[Domain]",
@@ -19,8 +19,15 @@
             "regexp": ".*"
         },
         {
+            "search": "meta[generator]",
+            "regexp": "Wix\\.com Website Builder"
+        },
+        {
             "search": "script",
-            "regexp": "static\\.wixstatic\\.com"
+            "regexp": "static\\.parastorage\\.com"
         }
+    ],
+    "implies": [
+        "React"
     ]
 }

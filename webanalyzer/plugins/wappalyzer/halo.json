@@ -1,13 +1,11 @@
 {
     "name": "Halo",
-    "website": "https://github.com/ruibaby/halo",
+    "website": "https://halo.run",
     "matches": [
         {
-            "regexp": "<link rel=[\"']stylesheet[\"'] [^>]+/halo-(?:backend|frontend|common)/"
-        },
-        {
-            "search": "script",
-            "regexp": "/halo-(?:backend|frontend|common)/"
+            "search": "meta[generator]",
+            "regexp": "Halo ([\\d.]+)?",
+            "offset": 1
         }
     ],
     "implies": "Java"

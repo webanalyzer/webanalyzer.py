@@ -6,9 +6,6 @@
             "regexp": "<link rel=[\"']stylesheet[\"'] [^>]+/wp-(?:content|includes)/"
         },
         {
-            "regexp": "<div[^>]*class=[\"']amp-wp-"
-        },
-        {
             "regexp": "<link[^>]+s\\d+\\.wp\\.com"
         },
         {

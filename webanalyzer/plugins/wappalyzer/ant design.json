@@ -8,8 +8,5 @@
         {
             "regexp": "<i class=\"anticon anticon-"
         }
-    ],
-    "implies": [
-        "React"
     ]
 }

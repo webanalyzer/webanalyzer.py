@@ -8,6 +8,9 @@
         {
             "regexp": "<style[^>]+data-styled-version=\"([0-9]+)\"",
             "offset": 1
+        },
+        {
+            "regexp": "<[^>]+sc-component-id: sc-"
         }
     ],
     "implies": [

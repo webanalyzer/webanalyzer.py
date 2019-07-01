@@ -8,12 +8,12 @@
         },
         {
             "search": "headers[x-shopid]",
-            "regexp": "*",
+            "regexp": ".*",
             "certainty": 50
         },
         {
             "search": "headers[x-shopify-stage]",
-            "regexp": "*",
+            "regexp": ".*",
             "certainty": 50
         }
     ]
