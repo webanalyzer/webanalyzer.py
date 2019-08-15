@@ -13,31 +13,42 @@ pip install -U webanalyzer
 
 ### 命令行
 
+第一次运行程序必须先下载指纹规则
+``` sh
+[*] webanalyzer --update -d /path/to/rules
+```
+
+也可以使用 git 自行下载规则
+``` sh
+[*] git clone https://github.com/webanalyzer/rules.git /path/to/rules
+```
 
 使用方法:
 
-```sh
+``` sh
 [*] webanalyzer --help
 Usage: webanalyzer [OPTIONS]
 
 Options:
   -u, --url TEXT                  Target  [required]
-  -a, --aggression INTEGER RANGE  Aggression mode, 1 enable custom plugins
-                                  aggression mode, 2 enable all plugins
+  --update BOOLEAN                Update rules
+  -d, --directory TEXT            Rules directory
+  -a, --aggression INTEGER RANGE  Aggression mode, 1 enable custom rules
+                                  aggression mode, 2 enable all rules
                                   aggression mode
   -U, --user-agent TEXT           Custom user agent
   -H, --header TEXT               Pass custom header LINE to serve
   -r, --disallow-redirect         Disallow redirect
-  -l, --list-plugins              List the plugins
+  -l, --list-rules                List the rules
   -v, --verbose INTEGER RANGE     Verbose level
-  -p, --plugin TEXT               Specify plugin
+  -r, --rule TEXT                 Specify Rule
   --help                          Show this message and exit.
 ```
 
 例子:
 
 ```sh
-[*] webanalyzer -u "http://blog.fatezero.org"
+[*] webanalyzer -u "http://blog.fatezero.org" -d path/to/rules
 [
     {
         "name": "Fastly",
@@ -67,17 +78,7 @@ Options:
 ]
 ```
 
-使用名字指定 plugin
-``` sh
-[*] webanalyzer -u "http://blog.fatezero.org" -p hexo
-{
-    "name": "Hexo",
-    "origin": "test",
-    "version": "3.8.0"
-}
-```
-
-使用绝对路径指定某个 plugin
+使用路径指定某个 rule
 ``` sh
 [*] webanalyzer -u "http://blog.fatezero.org" -p /abs/path/to/hexo.json
 {
@@ -94,17 +95,38 @@ Options:
 ``` python
 import webanalyzer
 
+# 初始化
 w = webanalyzer.WebAnalyzer()
 
+# 设置自定义 headers
 w.headers = {
     "User-Agent": "custom ua",
     "header-key": "header-value"
 }
 
+# 是否允许跳转
 w.allow_redirect = True
-w.aggression = 0
-r = w.start("http://www.fatezero.org")
 
+# aggression 模式级别
+w.aggression = 0
+
+# 设置 rules 路径
+w.rule_dir = "/path/to/rules"
+
+# 下载或更新某个路径下的 rules
+if w.update_rules("/path/to/rules"):
+    print("update rules successful")
+
+# 重新加载 rules
+n = w.reload_rules()
+print("reload %d rules" % n)
+
+# 使用某个 rule 进行检测
+r = w.test_rule("http://www.fatezero.org", "/path/to/rules/whatweb/hexo")
+print(r)
+
+# 使用所有 rules 进行检测
+r = w.start("http://www.fatezero.org")
 print(r)
 ```
 
@@ -123,4 +145,5 @@ Wappalyzer 更多的作为一个浏览器插件使用。
 
 ## 引用
 
-* [webanalyzer rules](https://github.com/webanalyzer/rules)
+* [rules](https://github.com/webanalyzer/rules)
+* [webanalyzer.go](https://github.com/webanalyzer/webanalyzer.go)
