@@ -35,7 +35,7 @@ setup(
     long_description=readme,
     author="fate0",
     author_email='fate0@fatezero.org',
-    url='https://github.com/fate0/webanalyzer',
+    url='https://github.com/webanalyzer/webanalyzer.py',
     packages=find_packages(),
     package_dir={},
     entry_points={
@@ -52,7 +52,7 @@ setup(
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
+        'License :: OSI Approved :: Apache License 2.0',
         'Natural Language :: English',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
