@@ -4,12 +4,9 @@
 import string
 import logging
 
-
 __all__ = ["Condition", "ParseException"]
 
-
 EOF = -1
-
 
 TOKEN_TYPE = {
     'not': 'NOT',
@@ -21,7 +18,6 @@ TOKEN_TYPE = {
     'eof': 'EOF'
 }
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -30,7 +26,7 @@ class ParseException(Exception):
 
 
 class Token(object):
-    def __init__(self, type, name='', value=''):
+    def __init__(self, type: TOKEN_TYPE, name: str = '', value: bool = False):
         self.type = type
         self.name = name
         self.value = value
@@ -42,7 +38,7 @@ class Token(object):
 
 
 class Result(object):
-    def __init__(self, name, value):
+    def __init__(self, name: str, value: bool):
         self.name = name
         self.value = value
 
@@ -62,21 +58,21 @@ class Condition(object):
         self.allow_character = string.ascii_lowercase + string.digits + '_'
         self.ignore_character = ' \t'
 
-    def _get_token(self):
+    def _get_token(self) -> Token:
         while self.index < len(self.condstr):
             if self.condstr[self.index] in self.ignore_character:
                 self.index += 1
                 continue
 
-            if self.condstr[self.index: self.index+2] == 'or' and \
-                    self.condstr[self.index+2] not in self.allow_character:
+            if self.condstr[self.index: self.index + 2] == 'or' and \
+                    self.condstr[self.index + 2] not in self.allow_character:
                 name = self.condstr[self.index: self.index + 2]
                 self.index += 2
                 return Token(TOKEN_TYPE[name])
 
-            elif self.condstr[self.index: self.index+3] in ('not', 'and') and \
-                    self.condstr[self.index+3] not in self.allow_character:
-                name = self.condstr[self.index: self.index+3]
+            elif self.condstr[self.index: self.index + 3] in ('not', 'and') and \
+                    self.condstr[self.index + 3] not in self.allow_character:
+                name = self.condstr[self.index: self.index + 3]
                 self.index += 3
                 return Token(TOKEN_TYPE[name])
 
@@ -99,7 +95,7 @@ class Condition(object):
 
         return Token(TOKEN_TYPE['eof'])
 
-    def pop_token(self):
+    def pop_token(self) -> Token:
         if self.back_tokens:
             return self.back_tokens.pop(0)
         try:
@@ -107,29 +103,29 @@ class Condition(object):
         except IndexError:
             raise ParseException('invalid condition "%s"', self.condstr)
 
-    def push_token(self, token):
+    def push_token(self, token: Token):
         self.back_tokens.append(token)
 
-    def parse_var_expression(self):
+    def parse_var_expression(self) -> Result:
         """
         v_exp := VARIABLE
         """
         token = self.pop_token()
         if token.type == TOKEN_TYPE['eof']:
-            return EOF
+            return Result(name='', value=False)
 
         if token.type != TOKEN_TYPE['variable']:
             raise ParseException('invalid condition "%s"' % self.condstr)
 
         return Result(name=token.name, value=token.value)
 
-    def parse_primary_expression(self):
+    def parse_primary_expression(self) -> Result:
         """
         p_exp := (exp)
         """
         token = self.pop_token()
         if token.type == TOKEN_TYPE['eof']:
-            return EOF
+            return Result(name='', value=False)
         elif token.type != TOKEN_TYPE['(']:
             self.push_token(token)
             return self.parse_var_expression()
@@ -142,13 +138,13 @@ class Condition(object):
 
         return r
 
-    def parse_not_expression(self):
+    def parse_not_expression(self) -> Result:
         """
         n_exp := NOT n_exp | NOT p_exp
         """
         token = self.pop_token()
         if token.type == TOKEN_TYPE['eof']:
-            return EOF
+            return Result(name='', value=False)
         elif token.type != TOKEN_TYPE['not']:
             self.push_token(token)
             return self.parse_primary_expression()
@@ -159,13 +155,13 @@ class Condition(object):
         logger.debug('[*] {}'.format(r))
         return r
 
-    def parse_and_expression(self):
+    def parse_and_expression(self) -> Result:
         """
         and_exp := and_exp AND n_exp
         """
         r1 = self.parse_not_expression()
-        if r1 == EOF:
-            return EOF
+        if not r1.name and not r1.value:
+            return r1
 
         while True:
             token = self.pop_token()
@@ -177,7 +173,7 @@ class Condition(object):
                 return r1
 
             r2 = self.parse_not_expression()
-            if r2 == EOF:
+            if not r2.name and not r2.value:
                 raise ParseException('invalid condition "%s"', self.condstr)
 
             r1 = Result('({} and {})'.format(r1.name, r2.name), r1.value and r2.value)
@@ -185,13 +181,13 @@ class Condition(object):
 
         return r1
 
-    def parse_or_expression(self):
+    def parse_or_expression(self) -> Result:
         """
         or_exp := or_exp OR and_exp
         """
         r1 = self.parse_and_expression()
-        if r1 == EOF:
-            return EOF
+        if not r1.name and not r1.value:
+            return r1
 
         while True:
             token = self.pop_token()
@@ -203,7 +199,7 @@ class Condition(object):
                 return r1
 
             r2 = self.parse_and_expression()
-            if r2 == EOF:
+            if not r2.name and not r2.value:
                 raise ParseException('invalid condition "%s"', self.condstr)
 
             r1 = Result('({} or {})'.format(r1.name, r2.name), r1.value or r2.value)
@@ -211,13 +207,13 @@ class Condition(object):
 
         return r1
 
-    def parse_expression(self):
+    def parse_expression(self) -> Result:
         """
         exp := or_exp
         """
         return self.parse_or_expression()
 
-    def parse(self, condstr, symbol_table):
+    def parse(self, condstr: str, symbol_table: hash) -> bool:
         self.condstr = condstr.lower()
         self.symbol_table = symbol_table
         self.index = 0
