@@ -47,7 +47,7 @@ class WebAnalyzer(object):
     def list_rules():
         return RULES
 
-    def reload_rules(self):
+    def reload_rules(self) -> int:
         global RULES, RULE_TYPES
         new_rules = {}
         new_rule_types = set()
@@ -78,8 +78,9 @@ class WebAnalyzer(object):
 
         RULES = new_rules
         RULE_TYPES = new_rule_types
+        return len(RULES)
 
-    def test_rule(self, rule_path: str, url: str) -> hash:
+    def test_rule(self, url: str, rule_path: str) -> hash:
         if not os.path.exists(rule_path):
             logger.warning("%s does not exists, exit" % rule_path)
             return
