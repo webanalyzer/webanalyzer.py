@@ -31,11 +31,11 @@ def main(url, update, directory, aggression, user_agent, header, disallow_redire
             click.echo("update rules done")
         return
 
-    if not os.path.isdir(directory) or not os.path.isfile(os.path.join(directory, 'VERSION')):
-        click.echo("invalid rules directory, use -d to specify rule directory")
-        return
-
     if list_rules:
+        if not os.path.isdir(directory) or not os.path.isfile(os.path.join(directory, 'VERSION')):
+            click.echo("invalid rules directory, use -d to specify rule directory")
+            return
+
         w.reload_rules()
         for i in w.list_rules().values():
             if i.get('desc'):
@@ -72,6 +72,10 @@ def main(url, update, directory, aggression, user_agent, header, disallow_redire
         r = w.test_rule(rule, url)
         if r:
             click.echo(json.dumps(r, indent=4))
+        return
+
+    if not os.path.isdir(directory) or not os.path.isfile(os.path.join(directory, 'VERSION')):
+        click.echo("invalid rules directory, use -d to specify rule directory")
         return
 
     r = w.start(url)
