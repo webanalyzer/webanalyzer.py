@@ -69,7 +69,7 @@ def main(url, update, directory, aggression, user_agent, header, disallow_redire
     logging.basicConfig(format='%(asctime)s - %(filename)s - %(levelname)s - %(message)s', level=(5 - verbose) * 10)
 
     if rule:
-        r = w.test_rule(rule, url)
+        r = w.test_rule(url, rule)
         if r:
             click.echo(json.dumps(r, indent=4))
         return
