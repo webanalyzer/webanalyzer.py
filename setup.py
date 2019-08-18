@@ -33,6 +33,7 @@ setup(
     version=version,
     description="",
     long_description=readme,
+    long_description_content_type='text/markdown',
     author="fate0",
     author_email='fate0@fatezero.org',
     url='https://github.com/webanalyzer/webanalyzer.py',
@@ -52,7 +53,7 @@ setup(
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: Apache License 2.0',
+        'License :: OSI Approved :: Apache Software License',
         'Natural Language :: English',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
