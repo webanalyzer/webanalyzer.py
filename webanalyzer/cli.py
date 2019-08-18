@@ -11,7 +11,7 @@ from . import __version__
 
 
 @click.command()
-@click.option('-u', '--url', required=True, type=click.STRING, help='Target')
+@click.option('-u', '--url', type=click.STRING, help='Target')
 @click.option('-d', '--directory', default=os.path.join(os.getcwd(), "rules"), help="Rules directory, default ./rules")
 @click.option('-a', '--aggression', type=click.IntRange(0, 2), default=0, help='Aggression mode, default 0')
 @click.option('-U', '--user-agent', type=click.STRING, help='Custom user agent')
@@ -43,6 +43,10 @@ def main(url, update, directory, aggression, user_agent, header, disallow_redire
             else:
                 click.echo('%s - %s' % (i['name'], i['origin']))
 
+        return
+
+    if not url:
+        click.echo("invalid url, use -u to specify target")
         return
 
     if aggression:
