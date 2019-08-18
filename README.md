@@ -31,17 +31,16 @@ Usage: webanalyzer [OPTIONS]
 
 Options:
   -u, --url TEXT                  Target  [required]
-  --update BOOLEAN                Update rules
-  -d, --directory TEXT            Rules directory
-  -a, --aggression INTEGER RANGE  Aggression mode, 1 enable custom rules
-                                  aggression mode, 2 enable all rules
-                                  aggression mode
+  -d, --directory TEXT            Rules directory, default ./rules
+  -a, --aggression INTEGER RANGE  Aggression mode, default 0
   -U, --user-agent TEXT           Custom user agent
   -H, --header TEXT               Pass custom header LINE to serve
-  -r, --disallow-redirect         Disallow redirect
-  -l, --list-rules                List the rules
-  -v, --verbose INTEGER RANGE     Verbose level
-  -r, --rule TEXT                 Specify Rule
+  -v, --verbose INTEGER RANGE     Verbose level, default 2
+  -r, --rule TEXT                 Specify rule
+  --disallow-redirect             Disallow redirect
+  --list-rules                    List rules
+  --update                        Update rules
+  --version                       Show the version and exit.
   --help                          Show this message and exit.
 ```
 
@@ -80,7 +79,7 @@ Options:
 
 使用路径指定某个 rule
 ``` sh
-[*] webanalyzer -u "http://blog.fatezero.org" -p /abs/path/to/hexo.json
+[*] webanalyzer -u "http://blog.fatezero.org" -p /path/to/hexo.json
 {
     "name": "Hexo",
     "origin": "test",
@@ -111,22 +110,26 @@ w.allow_redirect = True
 w.aggression = 0
 
 # 设置 rules 路径
-w.rule_dir = "/path/to/rules"
+w.rule_dir = "rules"
 
 # 下载或更新某个路径下的 rules
-if w.update_rules("/path/to/rules"):
+if w.update_rules():
     print("update rules successful")
 
 # 重新加载 rules
 n = w.reload_rules()
 print("reload %d rules" % n)
 
+# 获取所有 rules
+r = w.list_rules()
+print("list %d rules" % n)
+
 # 使用某个 rule 进行检测
-r = w.test_rule("http://www.fatezero.org", "/path/to/rules/whatweb/hexo")
+r = w.test_rule("http://blog.fatezero.org", "rules/wappalyzer/hexo.json")
 print(r)
 
 # 使用所有 rules 进行检测
-r = w.start("http://www.fatezero.org")
+r = w.start("http://blog.fatezero.org")
 print(r)
 ```
 
