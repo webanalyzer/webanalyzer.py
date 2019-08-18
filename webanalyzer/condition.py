@@ -19,6 +19,7 @@ TOKEN_TYPE = {
 }
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
 
 
 class ParseException(Exception):
