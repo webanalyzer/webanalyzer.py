@@ -9,82 +9,89 @@ import hashlib
 import logging
 import requests
 import urllib.parse
+import urllib.request
 from bs4 import BeautifulSoup
+from .utils import update
 from .condition import Condition
 from . import __version__
 
+__all__ = ["WebAnalyzer"]
+
 urllib3.disable_warnings()
+logger = logging.getLogger(__file__)
+
+
+RULES = {}
+RULE_TYPES = set()
+DEFAULT_RULE_DIR = os.path.join(os.getcwd(), "rules")
+REPOSITORY = "webanalyzer/rules"
 
 
 class WebAnalyzer(object):
-    rules = {}
-    plugin_types = set()
-    plugin_dir = os.path.join(os.path.dirname(__file__), 'plugins')
-
     def __init__(self):
         self.aggression = False
         self.url = None
-        self.targets = {}
+        self.allow_redirect = True
         self.headers = {
             'user-agent': 'webanalyzer/%s' % __version__
         }
-        self.cond_parser = Condition()
-        self.allow_redirect = True
-        self.logger = logging.getLogger(__file__)
+        self.rule_dir = DEFAULT_RULE_DIR
 
-    def load_plugins(self):
-        new_plugins = set()
-        for plugin_type in os.listdir(self.plugin_dir):
-            self.plugin_types.add(plugin_type)
-            plugin_type_dir = os.path.join(self.plugin_dir, plugin_type)
-            for i in os.listdir(plugin_type_dir):
+        self._targets = {}
+        self._cond_parser = Condition()
+
+    def update_rules(self) -> bool:
+        return update(REPOSITORY, self.rule_dir)
+
+    @staticmethod
+    def list_rules():
+        return RULES
+
+    def reload_rules(self):
+        global RULES, RULE_TYPES
+        new_rules = {}
+        new_rule_types = set()
+        for rule_type in os.listdir(self.rule_dir):
+            rule_type_dir = os.path.join(self.rule_dir, rule_type)
+            if not os.path.isdir(rule_type_dir):
+                continue
+            new_rule_types.add(rule_type)
+            for i in os.listdir(rule_type_dir):
                 if not i.endswith('.json'):
                     continue
 
-                with open(os.path.join(plugin_type_dir, i)) as fd:
+                with open(os.path.join(rule_type_dir, i)) as fd:
                     try:
                         data = json.load(fd)
-                        new_plugins.add(data['name'])
                         for match in data['matches']:
                             if 'regexp' in match:
                                 match['regexp'] = re.compile(match['regexp'], re.I | re.DOTALL)
 
                             if 'certainty' not in match:
                                 match['certainty'] = 100
-    
-                        data['origin'] = plugin_type
-                        key = '%s_%s' % (plugin_type, data['name'])
-                        self.rules[key] = data
-                        new_plugins.add(key)
+
+                        data['origin'] = rule_type
+                        key = '%s_%s' % (rule_type, data['name'])
+                        new_rules[key] = data
                     except Exception as e:
-                        self.logger.error('parse %s failed, error: %s' % (i, e))
+                        logger.error('parse %s failed, error: %s' % (i, e))
 
-        # disable rules
-        disabled_rules = set(self.rules.keys()) - new_plugins
-        for rule in disabled_rules:
-            self.rules.pop(rule)
+        RULES = new_rules
+        RULE_TYPES = new_rule_types
 
-    def test_plugin(self, plugin_path, url):
+    def test_rule(self, rule_path: str, url: str) -> hash:
+        if not os.path.exists(rule_path):
+            logger.warning("%s does not exists, exit" % rule_path)
+            return
+
         self.url = url
-        self.request(self.url)
+        self._request(self.url)
 
-        if not os.path.exists(plugin_path):
-            if not plugin_path.endswith('.json'):
-                plugin_path += '.json'
-
-            for plugin_type in os.listdir(self.plugin_dir):
-                if os.path.exists(os.path.join(self.plugin_dir, plugin_type, plugin_path)):
-                    plugin_path = os.path.join(self.plugin_dir, plugin_type, plugin_path)
-                    break
-            else:
-                self.logger.info("no such plugin, return")
-                return
-
-        with open(plugin_path) as fd:
+        with open(rule_path) as fd:
             rule = json.load(fd)
 
             if len(rule['matches']) == 0:
-                self.logger.info("matches empty, return")
+                logger.info("matches empty, return")
                 return
 
             rule['origin'] = 'test'
@@ -96,13 +103,13 @@ class WebAnalyzer(object):
                 if 'certainty' not in match:
                     match['certainty'] = 100
 
-            return self.check_rule(rule)
+            return self._check_rule(rule)
 
-    def request(self, url):
+    def _request(self, url: str) -> hash:
         try:
             rp = requests.get(url, headers=self.headers, verify=False, allow_redirects=self.allow_redirect)
         except Exception as e:
-            self.logger.error("request error: %s" % str(e))
+            logger.error("request error: %s" % str(e))
             return
 
         script = []
@@ -121,14 +128,21 @@ class WebAnalyzer(object):
             if meta_name:
                 meta[meta_name] = meta_content
 
+        title = p.find("title")
+        if title:
+            title = title.text
+        else:
+            title = ""
+
         raw_headers = '\n'.join('{}: {}'.format(k, v) for k, v in rp.headers.items())
-        self.targets[url] = {
+        self._targets[url] = {
             "url": url,
             "body": rp.text,
             "headers": rp.headers,
             "status": rp.status_code,
             "script": script,
             "meta": meta,
+            "title": title,
             "cookies": rp.cookies,
             "raw_cookies": rp.headers.get("set-cookie", ""),
             "raw_response": raw_headers + rp.text,
@@ -136,25 +150,25 @@ class WebAnalyzer(object):
             "md5": hashlib.md5(rp.content).hexdigest(),
         }
 
-        return self.targets[url]
+        return self._targets[url]
 
-    def check_match(self, match, aggression=False):
-        s = {'regexp', 'text', 'md5', 'status'}
+    def _check_match(self, match: hash, aggression: bool = False) -> (bool, str):
+        s = {'regexp', 'text', 'md5', 'status'}  # 如果增加新的检测方式，需要修改这里
         if not s.intersection(list(match.keys())):
-            return False
+            return False, None
 
-        target = self.targets[self.url]
+        target = self._targets[self.url]
         if 'url' in match:
             full_url = urllib.parse.urljoin(self.url, match['url'])
             if match['url'] == '/':  # 优化处理
                 pass
-            elif full_url in self.targets:
-                target = self.targets[full_url]
+            elif full_url in self._targets:
+                target = self._targets[full_url]
             elif aggression:
-                target = self.request(full_url)
+                target = self._request(full_url)
             else:
-                self.logger.debug("match has url(%s) field, but aggression is false" % match['url'])
-                return False
+                logger.debug("match has url(%s) field, but aggression is false" % match['url'])
+                return False, None
 
         # parse search
         search_context = target['body']
@@ -165,6 +179,8 @@ class WebAnalyzer(object):
                 search_context = target['raw_headers']
             elif match['search'] == 'script':
                 search_context = target['script']
+            elif match['search'] == 'title':
+                search_context = target['title']
             elif match['search'] == 'cookies':
                 search_context = target['raw_cookies']
             elif match['search'].endswith(']'):
@@ -174,7 +190,7 @@ class WebAnalyzer(object):
 
                     key = match['search'][len('%s[' % i):-1]
                     if key not in target[i]:
-                        return
+                        return False, None
                     search_context = target[i][key]
 
             match.pop('search')
@@ -183,11 +199,11 @@ class WebAnalyzer(object):
         for key in list(match.keys()):
             if key == 'status':
                 if match[key] != target[key]:
-                    return False
+                    return False, None
 
             if key == 'md5':
                 if target['md5'] != match['md5']:
-                    return False
+                    return False, None
 
             if key == 'text':
                 search_contexts = search_context
@@ -199,7 +215,7 @@ class WebAnalyzer(object):
                         continue
                     break
                 else:
-                    return False
+                    return False, None
 
             if key == 'regexp':
                 search_contexts = search_context
@@ -221,11 +237,11 @@ class WebAnalyzer(object):
                                 version = ''.join(result[0])
                     break
                 else:
-                    return False
+                    return False, None
 
-        return version if version else True
+        return True, version
 
-    def check_rule(self, rule):
+    def _check_rule(self, rule: hash) -> hash:
         matches = rule['matches']
 
         cond_map = {}
@@ -241,11 +257,11 @@ class WebAnalyzer(object):
             elif self.aggression == 1 and rule['origin'] == 'custom':
                 aggression = True
 
-            r = self.check_match(match, aggression=aggression)
-            if r:
+            is_match, version = self._check_match(match, aggression=aggression)
+            if is_match:
                 cond_map[str(index)] = True
-                if not isinstance(r, bool):
-                    result['version'] = r
+                if version:
+                    result['version'] = version
             else:
                 cond_map[str(index)] = False
 
@@ -255,25 +271,25 @@ class WebAnalyzer(object):
                 return result
             return
 
-        if self.cond_parser.parse(rule['condition'], cond_map):
+        if self._cond_parser.parse(rule['condition'], cond_map):
             return result
 
-    def start(self, url):
-        self.logger.debug("process %s" % url)
+    def start(self, url: str):
+        logger.debug("process %s" % url)
         self.url = url
         results = []
         implies = set()
         excludes = set()
 
-        if not self.request(url):
-            self.logger.info("request %s failed" % url)
+        if not self._request(url):
+            logger.info("request %s failed" % url)
             return
 
-        self.request(urllib.parse.urljoin(url, '/favicon.ico'))
+        self._request(urllib.parse.urljoin(url, '/favicon.ico'))
 
-        self.load_plugins()
-        for name, rule in self.rules.items():
-            r = self.check_rule(rule)
+        self.reload_rules()
+        for name, rule in RULES.items():
+            r = self._check_rule(rule)
             if r:
                 results.append(r)
 
@@ -304,12 +320,13 @@ class WebAnalyzer(object):
                 "origin": 'implies'
             })
 
-            for plugin_type in self.plugin_types:
-                plugin_name = '%s_%s' % (plugin_type, implies[i])
-                if plugin_name not in self.rules:
+            for rule_type in RULE_TYPES:
+                rule_name = '%s_%s' % (rule_type, implies[i])
+
+                rule = RULES.get(rule_name)
+                if not rule:
                     continue
 
-                rule = self.rules[plugin_name]
                 if 'implies' in rule:
                     if isinstance(rule['implies'], str) and \
                             rule['implies'] not in excludes and \
@@ -336,11 +353,3 @@ class WebAnalyzer(object):
             i += 1
 
         return results
-
-
-if __name__ == '__main__':
-    from pprint import pprint
-
-    w = WebAnalyzer()
-    wr = w.start("https://www.fatezero.org")
-    pprint(wr)
