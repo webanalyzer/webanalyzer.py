@@ -3,7 +3,7 @@
 
 __email__ = 'fate0@fatezero.org'
 __author__ = 'fate0'
-__version__ = '2019.08.17'
+__version__ = '2019.08.22'
 
 from . import condition, webanalyzer
 from .condition import Condition
