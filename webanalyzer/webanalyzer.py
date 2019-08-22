@@ -31,6 +31,7 @@ class WebAnalyzer(object):
     def __init__(self):
         self.aggression = False
         self.url = None
+        self.timeout = 30
         self.allow_redirect = True
         self.headers = {
             'user-agent': 'webanalyzer/%s' % __version__
@@ -108,7 +109,8 @@ class WebAnalyzer(object):
 
     def _request(self, url: str) -> hash:
         try:
-            rp = requests.get(url, headers=self.headers, verify=False, allow_redirects=self.allow_redirect)
+            rp = requests.get(url, headers=self.headers, verify=False, timeout=self.timeout,
+                              allow_redirects=self.allow_redirect)
         except Exception as e:
             logger.error("request error: %s" % str(e))
             return
