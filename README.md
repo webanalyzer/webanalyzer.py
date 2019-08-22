@@ -109,6 +109,9 @@ w.allow_redirect = True
 # aggression 模式级别
 w.aggression = 0
 
+# 设置 requests timeout 时间
+w.timeout = 30
+
 # 设置 rules 路径
 w.rule_dir = "rules"
 
@@ -128,8 +131,8 @@ print("list %d rules" % n)
 r = w.test_rule("http://blog.fatezero.org", "rules/wappalyzer/hexo.json")
 print(r)
 
-# 使用所有 rules 进行检测
-r = w.start("http://blog.fatezero.org")
+# 使用所有 rules 进行检测，默认会重新 reload rules
+r = w.start("http://blog.fatezero.org", reload=False)
 print(r)
 ```
 
