@@ -20,7 +20,6 @@ __all__ = ["WebAnalyzer"]
 urllib3.disable_warnings()
 logger = logging.getLogger(__file__)
 
-
 RULES = {}
 RULE_TYPES = set()
 DEFAULT_RULE_DIR = os.path.join(os.getcwd(), "rules")
@@ -277,7 +276,7 @@ class WebAnalyzer(object):
         if self._cond_parser.parse(rule['condition'], cond_map):
             return result
 
-    def start(self, url: str):
+    def start(self, url: str, reload: bool = True):
         logger.debug("process %s" % url)
         self.url = url
         results = []
@@ -290,7 +289,9 @@ class WebAnalyzer(object):
 
         self._request(urllib.parse.urljoin(url, '/favicon.ico'))
 
-        self.reload_rules()
+        if reload:
+            self.reload_rules()
+
         for name, rule in RULES.items():
             r = self._check_rule(rule)
             if r:
