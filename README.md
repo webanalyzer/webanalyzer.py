@@ -79,7 +79,7 @@ Options:
 
 使用路径指定某个 rule
 ``` sh
-[*] webanalyzer -u "http://blog.fatezero.org" -p /path/to/hexo.json
+[*] webanalyzer -u "http://blog.fatezero.org" -r /path/to/hexo.json
 {
     "name": "Hexo",
     "origin": "test",
