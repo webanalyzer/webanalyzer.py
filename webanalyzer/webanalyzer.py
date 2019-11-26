@@ -293,10 +293,9 @@ class WebAnalyzer(object):
             self.reload_rules()
 
         for name, rule in RULES.items():
+            # print(name)
             r = self._check_rule(rule)
             if r:
-                results.append(r)
-
                 if 'implies' in rule:
                     if isinstance(rule['implies'], str):
                         implies.add(rule['implies'])
@@ -309,37 +308,22 @@ class WebAnalyzer(object):
                     else:
                         excludes.update(rule['excludes'])
 
-        i = 0
-        while i < len(results):
-            if results[i]['name'] in excludes:
-                results.pop(i)
-                continue
-            i += 1
+                if r['name'] in excludes:
+                    continue
+                results.append(r)
 
-        i = 0
-        implies = list(implies)
-        while i < len(implies):
-            results.append({
-                'name': implies[i],
+        for imply in implies:
+            _result = {
+                'name': imply,
                 "origin": 'implies'
-            })
+            }
 
             for rule_type in RULE_TYPES:
-                rule_name = '%s_%s' % (rule_type, implies[i])
+                rule_name = '%s_%s' % (rule_type, imply)
 
                 rule = RULES.get(rule_name)
                 if not rule:
                     continue
-
-                if 'implies' in rule:
-                    if isinstance(rule['implies'], str) and \
-                            rule['implies'] not in excludes and \
-                            rule['implies'] not in implies:
-                        implies.append(rule['implies'])
-                    else:
-                        for im in rule['implies']:
-                            if im not in excludes and im not in implies:
-                                implies.append(im)
 
                 if 'excludes' in rule:
                     if isinstance(rule['excludes'], str):
@@ -347,13 +331,8 @@ class WebAnalyzer(object):
                     else:
                         excludes.update(rule['excludes'])
 
-            i += 1
-
-        i = 0
-        while i < len(results):
-            if results[i]['name'] in excludes:
-                results.pop(i)
+            if _result['name'] in excludes:
                 continue
-            i += 1
+            results.append(_result)
 
         return results
