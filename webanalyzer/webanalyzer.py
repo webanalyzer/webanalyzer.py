@@ -65,7 +65,7 @@ class WebAnalyzer(object):
                         data = json.load(fd)
                         for match in data['matches']:
                             if 'regexp' in match:
-                                match['regexp'] = re.compile(match['regexp'], re.I | re.DOTALL)
+                                match['regexp'] = re.compile(match['regexp'], re.I)
 
                             if 'certainty' not in match:
                                 match['certainty'] = 100
@@ -99,7 +99,7 @@ class WebAnalyzer(object):
 
             for match in rule['matches']:
                 if 'regexp' in match:
-                    match['regexp'] = re.compile(match['regexp'], re.I | re.DOTALL)
+                    match['regexp'] = re.compile(match['regexp'], re.I)
 
                 if 'certainty' not in match:
                     match['certainty'] = 100
